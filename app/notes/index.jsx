@@ -1,33 +1,61 @@
 import AddNoteModal from '@/component/AddNoteModal';
 import NoteList from '@/component/NoteList';
-import { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import noteService from '@/services/noteService';
+import { useEffect, useState } from "react";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const NoteScreen = () => {
-    const [notes, setNotes] = useState([
-        { id: '1', text: 'Note 1' },
-        { id: '2', text: 'Note 2' },
-        { id: '3', text: 'Note 3' },
-        { id: '4', text: 'Note 4' },
-    ]);
+    const [notes, setNotes] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [newNote, setNewNote] = useState('');
+    const [loading, setLoading] =  useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        fetchNotes();
+    }, []);
+
+    const fetchNotes = async () => {
+      setLoading(true);
+      const response = await noteService.getNotes();
+
+      if (response.error) {
+        setError(response.error);
+        Alert.alert('Error', response.error);
+      } else {
+        setNotes(response.data);
+        setError(null);
+      }
+
+      setLoading(false);
+    };
 
     // adds new note
-    const addNote = () => {
-        if(newNote.trim() === '') return;
+    const addNote = async () => {
+      if(newNote.trim() === '') return;
 
-        setNotes((prevNotes) => [
-            ...prevNotes,
-            { id: Date.now.toString(), text: newNote }
-        ]);
+      const response = await noteService.addNote(newNote);
 
-        setNewNote('');
-        setModalVisible(false);
+      if (response.error) {
+        Alert.alert('Error: ', response.error);
+      } else {
+        setNotes([...notes, response.data]);
+      }
+
+      setNewNote('');
+      setModalVisible(false);
     }
 
     return (<View style={ styles.container }>
-        <NoteList notes={ notes }/>
+
+      { loading ? (
+        <ActivityIndicator size='large' color='#007bff' />
+      ) : (
+        <>
+          { error && <Text style={ styles.errorText }>{error}</Text> }
+          <NoteList notes={notes} />
+        </>
+      ) }
 
         <TouchableOpacity style={ styles.button } onPress={ () => setModalVisible(true) }>
             <Text style= { styles.buttonText }>Add Note</Text>
@@ -52,16 +80,23 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
     },
     button: {
-    backgroundColor: '#0e28b6',
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 8,
-    alignItems: 'center',
-    },
-    buttonText: {
+      backgroundColor: '#0e28b6',
+      paddingVertical: 12,
+      paddingHorizontal: 25,
+      borderRadius: 8,
+      alignItems: 'center',
+      margin: 20,
+  },
+  buttonText: {
     color: '#fff',
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    marginBottom: 10,
+    fontSize: 18,
   },
 });
 

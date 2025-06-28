@@ -5,7 +5,7 @@ const NoteList = ({ notes }) => {
     return ( <View>
         <FlatList 
             data={notes}
-            keyExtractor={ (item) => item.id } // unique key for each note
+            keyExtractor={ (item) => item.$id } // unique key for each note
             renderItem={({ item }) => <NoteItem note={ item } />} // render jsx to display
         />
     </View> );
