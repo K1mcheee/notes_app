@@ -2,7 +2,7 @@ import AddNoteModal from '@/component/AddNoteModal';
 import NoteList from '@/component/NoteList';
 import noteService from '@/services/noteService';
 import { useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const NoteScreen = () => {
     const [notes, setNotes] = useState([]);
@@ -46,6 +46,47 @@ const NoteScreen = () => {
       setModalVisible(false);
     }
 
+    // edits note
+    const editNote = async (id, newText) => {
+      if (!newText.trim()) {
+        Alert.alert('Error: ', 'Note text cannot be empty');
+        return;
+      }
+      const response = await noteService.updateNote(id, newText);
+      if (response.error) {
+        Alert.alert('Error: ', response.error);
+      } else {
+        setNotes((prevNotes) => prevNotes.map((note) => note.$id === id ? 
+      { ...note, text: response.data.text } : note
+      ));
+      }
+      
+    };
+
+    // deletes note
+    const deleteNote = async (id) => {
+      Alert.alert('Delete note', 'Are you sure you want to delete this note?', 
+        [{
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            const response = await noteService.deleteNote(id);
+            if (response.error) {
+              Alert.alert('Error: ', response.error);
+            } else {
+              setNotes(notes.filter((note) => note.$id != id));
+            }
+          },
+        },
+      ]);
+    }; 
+
+
+
     return (<View style={ styles.container }>
 
       { loading ? (
@@ -53,7 +94,7 @@ const NoteScreen = () => {
       ) : (
         <>
           { error && <Text style={ styles.errorText }>{error}</Text> }
-          <NoteList notes={notes} />
+          <NoteList notes={notes} onEdit={editNote} onDelete={deleteNote} />
         </>
       ) }
 
