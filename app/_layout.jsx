@@ -26,6 +26,10 @@ const RootLayout = () => {
       options={{ headerTitle: 'Notes',
                  headerTitleAlign: 'center',
      }} />
+      <Stack.Screen name='auth' 
+      options={{ headerTitle: 'Login',
+                 headerTitleAlign: 'center',
+     }} />
 
   </Stack>
   </AuthProvider>
