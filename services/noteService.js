@@ -1,4 +1,4 @@
-import { ID } from "react-native-appwrite";
+import { ID, Query } from "react-native-appwrite";
 import databaseService from "./databaseService";
 
 // Appwrite database and collection id
@@ -7,21 +7,30 @@ const colId = process.env.EXPO_PUBLIC_APPWRITE_COL_NOTES_ID;
 
 const noteService = {
     // Get Notes
-    async getNotes() {
-        const response = await databaseService.listDocuments(dbId, colId);
-        if (response.error) {
-            return { error: response.error };
-        } 
-        return { data: response };
+    async getNotes(userId) {
+        if (!userId) {
+            console.error('Error: Missing user ID in getNotes()');
+            return { data: [], error: 'User Id is missing.' };
+        }
+
+        try {
+            const response = await databaseService.listDocuments(dbId, colId, [Query.equal('user_id', userId)]);
+            return response;
+        } catch (error) {
+            console.log('Error fetching notes: ', error.mesage);
+            return { data: [], errpr: error.message };
+        }
+
     },
     // Add new note
-    async addNote(text) {
+    async addNote(user_id, text) {
         if (!text) {
             return { error: 'Note text cannot be empty' };
         }
         const data = {
             text: text,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            user_id: user_id,
         }
 
         const response = await databaseService.createDoument(
