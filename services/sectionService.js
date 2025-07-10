@@ -3,42 +3,36 @@ import databaseService from "./databaseService";
 
 // Appwrite database and collection id
 const dbId = process.env.EXPO_PUBLIC_APPWRITE_DB_ID;
-const colId = process.env.EXPO_PUBLIC_APPWRITE_COL_NOTES_ID;
+const colId = process.env.EXPO_PUBLIC_APPWRITE_COL_SECTION_ID;
 
-const noteService = {
+const sectionService = {
     // Get Notes
-    async getNotes(userId) {
+    async getSections(userId) {
         if (!userId) {
             console.error('Error: Missing user ID in getNotes()');
             return { data: [], error: 'User Id is missing.' };
         }
 
         try {
-            const response = await databaseService.listDocuments(dbId, colId, [Query.equal('user_id', userId)]);
-            if (response.length == 0) {
-                const data = {
-                    text: 'Unsorted',
-                }
-            }
+            const response = await databaseService.listSections(dbId, colId, [Query.equal('user_id', userId)]);
             return response;
         } catch (error) {
-            console.log('Error fetching notes: ', error.mesage);
-            return { data: [], errpr: error.message };
+            console.log('Error fetching sections: ', error.message);
+            return { data: [], error: error.message };
         }
 
     },
     // Add new note
-    async addNote(user_id, text) {
+    async addSection(user_id, colId, text) { //section
         if (!text) {
-            return { error: 'Note text cannot be empty' };
+            return { error: 'Section name cannot be empty' };
         }
         const data = {
-            text: text,
-            createdAt: new Date().toISOString(),
+            Title: text,
             user_id: user_id,
         }
 
-        const response = await databaseService.createDoument(
+        const response = await databaseService.createSection(
             dbId, 
             colId,
             data,
@@ -50,9 +44,9 @@ const noteService = {
         }
         return { data: response };
     },
-    // Update Note
-    async updateNote(id, text) {
-        const response = await databaseService.updateDocument(dbId, colId, id, 
+    // Update Section
+    async updateSection(id, text) {
+        const response = await databaseService.updateSection(dbId, colId, id, 
             {
                 text
             });
@@ -63,13 +57,14 @@ const noteService = {
         return { data: response };
     },
     // Delete Note
-    async deleteNote(id) {
-        const response = await databaseService.deleteDocument(dbId, colId, id);
+    async deleteSection(id) {
+        const response = await databaseService.deleteSection(dbId, colId, id);
         if (response?.error) {
             return { error: response.error };
         }
         return { success: true };
     },
+
 };
 
-export default noteService;
+export default sectionService;

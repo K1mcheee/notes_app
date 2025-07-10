@@ -1,6 +1,43 @@
 import { database } from "./appwrite";
 
 const databaseService = {
+    async listSections(dbId, colId, queries = []) {
+        try {
+            const response = await database.listDocuments(dbId, colId, queries); // part of SDK of db object
+            return { data: response.documents || [], error: null };
+        } catch (error) {
+            console.error('Error fetching section: ', error.message);
+            return { error: error.message };
+        }
+    },
+    // Create sections
+    async createSection(dbId, colId, data, id = null) {
+        try {
+            return await database.createDocument(dbId, colId, id || undefined, data);
+        } catch (error) {
+            console.error('Error creating section: ', error.message);
+            return { error: error.message };
+        }        
+    },
+    // Update document
+    async updateSection(dbId, colId, id, data) {
+        try {
+            return await database.updateDocument(dbId, colId, id, data);
+        } catch (error) {
+            console.error('Error updating section: ', error.message);
+            return { error: error.message };
+        }
+    },
+    // Delete document
+    async deleteSection(dbId, colId, id) {
+        try {
+            await database.deleteDocument(dbId, colId, id);
+            return { success: true };
+        } catch (error) {
+            console.error('Error deleting section: ', error.message);
+            return { error: error.message };
+        }
+    },
     // List documents
     async listDocuments(dbId, colId, queries = []) {
         try {

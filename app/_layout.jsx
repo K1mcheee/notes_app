@@ -38,8 +38,12 @@ const RootLayout = () => {
       options={{ headerTitle: 'Notes',
                  headerTitleAlign: 'center',
      }} />
-      <Stack.Screen name='auth' 
+    <Stack.Screen name='auth' 
       options={{ headerTitle: 'Login',
+                 headerTitleAlign: 'center',
+     }} />
+    <Stack.Screen name='section' 
+      options={{ headerTitle: 'List',
                  headerTitleAlign: 'center',
      }} />
 

@@ -10,7 +10,7 @@ const HomeScreen = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      router.replace('/notes');
+      router.replace('/section');
     }
   }, [user, loading]);
 

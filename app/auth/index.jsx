@@ -37,7 +37,7 @@ const AuthScreen = () => {
             return;
         }
 
-        router.replace('/notes');
+        router.replace('/section');
     }
 
     return ( <View style={ styles.container }>
